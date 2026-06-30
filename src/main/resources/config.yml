@@ -1,0 +1,21 @@
+# =====================================
+# EventQueueSystem configuration
+# =====================================
+
+# Exact (case-insensitive) Multiverse world names where the save/queue
+# system is active. Add EVERY Multiverse world used for scripted events
+# here — this replaces the old Skript check of `world name contains "world"`,
+# which would have falsely matched things like "lobby_world" or "world_nether".
+event-worlds:
+  - "world"
+
+# Permission required for a player's inventory, armor, health, hunger,
+# XP, and location to be saved on quit and restored on join.
+# Players WITHOUT this permission are treated as "actors": their
+# gear/stats are reset and they're sent to the queue spawn on join.
+save-permission: "event.savedata"
+
+# Logs every decision (world checks, permission checks, save/restore/
+# reset actions) to console with an [debug] prefix. Turn this off once
+# everything's behaving the way you expect.
+debug: true
