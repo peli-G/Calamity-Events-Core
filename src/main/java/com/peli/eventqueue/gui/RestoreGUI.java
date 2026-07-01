@@ -3,7 +3,6 @@ package com.peli.eventqueue.gui;
 import com.peli.eventqueue.data.RestoreOption;
 import com.peli.eventqueue.data.SavedPlayerData;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
@@ -27,11 +26,21 @@ public class RestoreGUI {
     public static final int SLOT_YES = 29;
     public static final int SLOT_NO  = 33;
 
-    private static final String TITLE = "§6Load latest inventory? §e⚠";
+    private static final String TITLE_ENTRY = "§6Load latest inventory? §e⚠";
+    private static final String TITLE_DEATH = "§cRestore from death? §4☠";
 
     public static void open(Player player, SavedPlayerData savedData) {
-        RestoreGUIHolder holder = new RestoreGUIHolder(savedData);
-        Inventory inv = Bukkit.createInventory(holder, 36, TITLE);
+        openInternal(player, savedData, false);
+    }
+
+    public static void openForDeath(Player player, SavedPlayerData savedData) {
+        openInternal(player, savedData, true);
+    }
+
+    private static void openInternal(Player player, SavedPlayerData savedData, boolean death) {
+        RestoreGUIHolder holder = new RestoreGUIHolder(savedData, death);
+        String title = death ? TITLE_DEATH : TITLE_ENTRY;
+        Inventory inv = Bukkit.createInventory(holder, 36, title);
         holder.setInventory(inv);
 
         // Border — gray glass panes
@@ -47,8 +56,8 @@ public class RestoreGUI {
         }
 
         // Yes / No
-        inv.setItem(SLOT_YES, actionItem(Material.LIME_WOOL,   "§a§lYes", "§7Restore selected data."));
-        inv.setItem(SLOT_NO,  actionItem(Material.RED_WOOL,    "§c§lNo",  "§7Do not restore. Start fresh."));
+        inv.setItem(SLOT_YES, actionItem(Material.LIME_WOOL, "§a§lYes", "§7Restore selected data."));
+        inv.setItem(SLOT_NO,  actionItem(Material.RED_WOOL,  "§c§lNo",  death ? "§7Keep respawn state. Items are gone." : "§7Do not restore. Start fresh."));
 
         player.openInventory(inv);
     }

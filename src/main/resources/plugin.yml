@@ -1,8 +1,8 @@
 name: EventQueueSystem
-version: '1.0.0'
+version: '1.1.0'
 main: com.peli.eventqueue.EventQueuePlugin
 api-version: '1.21'
-author: Peli
+author: peli_G
 description: Permission-gated player data save/restore and queue spawn system for scripted Minecraft events.
 
 softdepend:
@@ -13,13 +13,13 @@ commands:
     description: Sets the queue spawn for the current event world.
     usage: /setqueuespawn
     permission: eventqueue.setqueuespawn
-  openeventqueue:
+  openqueue:
     description: Opens the event queue and grants queue.join.event to the default group.
-    usage: /openeventqueue
+    usage: /openqueue
     permission: eventqueue.admin
-  closeeventqueue:
+  closequeue:
     description: Closes the event queue and removes queue.join.event from the default group.
-    usage: /closeeventqueue
+    usage: /closequeue
     permission: eventqueue.admin
   queueinfo:
     description: Shows queue status and spawn info.
@@ -40,6 +40,6 @@ permissions:
   event.savedata:
     description: >-
       Players with this permission have their data saved on quit and are shown
-      the restore GUI on joining an event world. Without it, players are treated
-      as actors and reset to the queue spawn.
+      the restore GUI on joining an event world or respawning after death.
+      Without it, players are treated as actors and reset to the queue spawn.
     default: false

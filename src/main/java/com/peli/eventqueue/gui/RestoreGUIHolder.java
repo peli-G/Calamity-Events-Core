@@ -18,10 +18,11 @@ public class RestoreGUIHolder implements InventoryHolder {
     private final SavedPlayerData savedData;
     private final Set<RestoreOption> selected;
     private boolean closedByButton = false;
+    private final boolean death;
 
-    public RestoreGUIHolder(SavedPlayerData savedData) {
+    public RestoreGUIHolder(SavedPlayerData savedData, boolean death) {
         this.savedData = savedData;
-        // Initialise from each option's default checked state
+        this.death = death;
         this.selected = EnumSet.noneOf(RestoreOption.class);
         for (RestoreOption opt : RestoreOption.values()) {
             if (opt.isCheckedByDefault()) selected.add(opt);
@@ -34,6 +35,7 @@ public class RestoreGUIHolder implements InventoryHolder {
 
     public SavedPlayerData getSavedData()    { return savedData; }
     public Set<RestoreOption> getSelected()  { return selected; }
+    public boolean isDeath()                 { return death; }
 
     public boolean isSelected(RestoreOption opt)   { return selected.contains(opt); }
     public void toggle(RestoreOption opt) {

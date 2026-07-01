@@ -46,8 +46,51 @@ public class PlayerDataManager {
     }
 
     // -------------------------------------------------------------------------
-    // SAVE
+    // SNAPSHOT (in-memory only — used for death restore)
     // -------------------------------------------------------------------------
+
+    public SavedPlayerData snapshotPlayer(Player player) {
+        PlayerInventory inv = player.getInventory();
+
+        double maxHealth = player.getAttribute(Attribute.MAX_HEALTH).getBaseValue();
+
+        // Respawn location
+        Location respawn = player.getRespawnLocation();
+
+        // Potions
+        Collection<PotionEffect> effects = new ArrayList<>(player.getActivePotionEffects());
+
+        // Ender chest
+        ItemStack[] ec = new ItemStack[player.getEnderChest().getSize()];
+        for (int i = 0; i < ec.length; i++) {
+            ec[i] = safeItem(player.getEnderChest().getItem(i));
+        }
+
+        return new SavedPlayerData(
+                safeArray(inv.getContents()),
+                safeItem(inv.getItemInOffHand()),
+                safeArray(inv.getArmorContents()),
+                maxHealth,
+                Math.max(0, Math.min(player.getHealth(), maxHealth)),
+                player.getFoodLevel(),
+                player.getSaturation(),
+                player.getExhaustion(),
+                player.getLevel(),
+                player.getExp(),
+                player.getLocation().clone(),
+                respawn != null ? respawn.clone() : null,
+                effects,
+                player.getGameMode(),
+                ec,
+                player.getArrowsInBody()
+        );
+    }
+
+    private ItemStack[] safeArray(ItemStack[] items) {
+        ItemStack[] arr = new ItemStack[items.length];
+        for (int i = 0; i < items.length; i++) arr[i] = safeItem(items[i]);
+        return arr;
+    }
 
     public void savePlayerData(Player player) {
         PlayerInventory inv = player.getInventory();

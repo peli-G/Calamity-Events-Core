@@ -1,7 +1,6 @@
 package com.peli.eventqueue.gui;
 
 import com.peli.eventqueue.EventQueuePlugin;
-import com.peli.eventqueue.data.PlayerDataManager;
 import com.peli.eventqueue.data.RestoreOption;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -20,30 +19,40 @@ public class RestoreGUIListener implements Listener {
     @EventHandler
     public void onInventoryClick(InventoryClickEvent event) {
         if (!(event.getInventory().getHolder() instanceof RestoreGUIHolder)) return;
-        event.setCancelled(true); // never let items be moved in this GUI
+        event.setCancelled(true);
 
         if (!(event.getWhoClicked() instanceof Player)) return;
         Player player = (Player) event.getWhoClicked();
         int slot = event.getRawSlot();
-
         RestoreGUIHolder holder = (RestoreGUIHolder) event.getInventory().getHolder();
 
         if (slot == RestoreGUI.SLOT_YES) {
-            plugin.debug("RestoreGUI: " + player.getName() + " clicked YES. Options: " + holder.getSelected());
+            plugin.debug("RestoreGUI (" + (holder.isDeath() ? "death" : "entry") + "): " + player.getName()
+                    + " clicked YES. Options: " + holder.getSelected());
             holder.setClosedByButton(true);
             player.closeInventory();
-            plugin.getPendingRestorePlayers().remove(player.getUniqueId());
+            if (holder.isDeath()) {
+                plugin.getDeathSnapshots().remove(player.getUniqueId());
+            } else {
+                plugin.getPendingRestorePlayers().remove(player.getUniqueId());
+            }
             plugin.getPlayerDataManager().applyPlayerData(player, holder.getSavedData(), holder.getSelected());
             player.sendMessage("§aRestored your data.");
             return;
         }
 
         if (slot == RestoreGUI.SLOT_NO) {
-            plugin.debug("RestoreGUI: " + player.getName() + " clicked NO — not restoring.");
+            plugin.debug("RestoreGUI (" + (holder.isDeath() ? "death" : "entry") + "): " + player.getName()
+                    + " clicked NO — not restoring.");
             holder.setClosedByButton(true);
             player.closeInventory();
-            plugin.getPendingRestorePlayers().remove(player.getUniqueId());
-            player.sendMessage("§7Skipped restore — starting fresh.");
+            if (holder.isDeath()) {
+                plugin.getDeathSnapshots().remove(player.getUniqueId());
+                player.sendMessage("§7Skipped restore — you keep your respawn state.");
+            } else {
+                plugin.getPendingRestorePlayers().remove(player.getUniqueId());
+                player.sendMessage("§7Skipped restore — starting fresh.");
+            }
             return;
         }
 
@@ -62,12 +71,18 @@ public class RestoreGUIListener implements Listener {
         if (!(event.getPlayer() instanceof Player)) return;
 
         RestoreGUIHolder holder = (RestoreGUIHolder) event.getInventory().getHolder();
+        Player player = (Player) event.getPlayer();
+
         if (!holder.isClosedByButton()) {
-            // Closed with Esc or some other external force — treat as No.
-            Player player = (Player) event.getPlayer();
-            plugin.debug("RestoreGUI: " + player.getName() + " closed GUI without choosing — treating as No.");
-            plugin.getPendingRestorePlayers().remove(player.getUniqueId());
-            player.sendMessage("§7Skipped restore — starting fresh.");
+            plugin.debug("RestoreGUI (" + (holder.isDeath() ? "death" : "entry") + "): "
+                    + player.getName() + " closed GUI without choosing — treating as No.");
+            if (holder.isDeath()) {
+                plugin.getDeathSnapshots().remove(player.getUniqueId());
+                player.sendMessage("§7Skipped restore — you keep your respawn state.");
+            } else {
+                plugin.getPendingRestorePlayers().remove(player.getUniqueId());
+                player.sendMessage("§7Skipped restore — starting fresh.");
+            }
         }
     }
 }

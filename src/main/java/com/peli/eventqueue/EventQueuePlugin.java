@@ -7,13 +7,17 @@ import com.peli.eventqueue.commands.QueueInfoCommand;
 import com.peli.eventqueue.commands.SetQueueSpawnCommand;
 import com.peli.eventqueue.data.PlayerDataManager;
 import com.peli.eventqueue.data.QueueSpawnManager;
+import com.peli.eventqueue.data.SavedPlayerData;
 import com.peli.eventqueue.gui.RestoreGUIListener;
 import com.peli.eventqueue.listeners.PlayerConnectionListener;
+import com.peli.eventqueue.listeners.PlayerDeathListener;
 import org.bukkit.World;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
@@ -26,13 +30,15 @@ public class EventQueuePlugin extends JavaPlugin {
     private String savePermission;
     private boolean debug;
 
-    // Queue open/close state (from /openeventqueue and /closeeventqueue)
     private boolean queueOpen = false;
 
-    // Players who currently have the restore GUI open.
-    // Quit-save is suppressed for these players to avoid clobbering old saved data
-    // with whatever lobby gear they had when they entered the event world.
+    // Players currently looking at the entry restore GUI — quit-save is
+    // suppressed for these to avoid clobbering their existing save with lobby gear.
     private final Set<UUID> pendingRestorePlayers = new HashSet<>();
+
+    // In-memory death snapshots: captured on PlayerDeathEvent, consumed by the
+    // death restore GUI. Not persisted to disk; the quit-save is the fallback.
+    private final Map<UUID, SavedPlayerData> deathSnapshots = new HashMap<>();
 
     @Override
     public void onEnable() {
@@ -43,17 +49,18 @@ public class EventQueuePlugin extends JavaPlugin {
         this.playerDataManager = new PlayerDataManager(this);
 
         getServer().getPluginManager().registerEvents(new PlayerConnectionListener(this), this);
+        getServer().getPluginManager().registerEvents(new PlayerDeathListener(this), this);
         getServer().getPluginManager().registerEvents(new RestoreGUIListener(this), this);
 
         getCommand("setqueuespawn").setExecutor(new SetQueueSpawnCommand(this));
-        getCommand("openeventqueue").setExecutor(new OpenEventQueueCommand(this));
-        getCommand("closeeventqueue").setExecutor(new CloseEventQueueCommand(this));
+        getCommand("openqueue").setExecutor(new OpenEventQueueCommand(this));
+        getCommand("closequeue").setExecutor(new CloseEventQueueCommand(this));
         getCommand("queueinfo").setExecutor(new QueueInfoCommand(this));
         getCommand("eventqueue").setExecutor(new EventQueueAdminCommand(this));
 
         getLogger().info("EventQueueSystem enabled. Watching " + eventWorlds.size() + " event world(s): " + eventWorlds);
         if (!isLuckPermsAvailable()) {
-            getLogger().warning("LuckPerms not found — /openeventqueue and /closeeventqueue won't be able to modify group permissions.");
+            getLogger().warning("LuckPerms not found — /openqueue and /closequeue won't be able to modify group permissions.");
         }
     }
 
@@ -85,13 +92,12 @@ public class EventQueuePlugin extends JavaPlugin {
         return getServer().getPluginManager().getPlugin("LuckPerms") != null;
     }
 
-    // ---- Getters / setters ----
-
-    public String getSavePermission()                { return savePermission; }
-    public List<String> getEventWorldNames()         { return eventWorlds; }
-    public QueueSpawnManager getQueueSpawnManager()  { return queueSpawnManager; }
-    public PlayerDataManager getPlayerDataManager()  { return playerDataManager; }
-    public Set<UUID> getPendingRestorePlayers()      { return pendingRestorePlayers; }
-    public boolean isQueueOpen()                     { return queueOpen; }
-    public void setQueueOpen(boolean open)           { this.queueOpen = open; }
+    public String getSavePermission()                    { return savePermission; }
+    public List<String> getEventWorldNames()             { return eventWorlds; }
+    public QueueSpawnManager getQueueSpawnManager()      { return queueSpawnManager; }
+    public PlayerDataManager getPlayerDataManager()      { return playerDataManager; }
+    public Set<UUID> getPendingRestorePlayers()          { return pendingRestorePlayers; }
+    public Map<UUID, SavedPlayerData> getDeathSnapshots(){ return deathSnapshots; }
+    public boolean isQueueOpen()                         { return queueOpen; }
+    public void setQueueOpen(boolean open)               { this.queueOpen = open; }
 }
