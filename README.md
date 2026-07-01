@@ -1,6 +1,7 @@
 # Event Queue System
 
-Queue system used on Peli Events. IP is pelievents.cinros.net:25561
+Queue system used on Peli Events. 
+IP is pelievents.cinros.net:25561
 
 ## Commands
 All commands listed here require Operator status (OP)
