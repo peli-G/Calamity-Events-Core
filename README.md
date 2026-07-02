@@ -24,7 +24,7 @@ Open the command prompt and run gradlew.bat build
 # Techinical Summary
 (written by ai cuz i aint writing all that shi myself)
 
-## EventQueueSystem — Technical Summary
+## Calamity Events Core — Technical Summary
 
 Core concept: Two player tiers exist in event worlds — participants (have event.savedata) and actors (everyone else). The plugin enforces different behavior for each on every world entry, death, and disconnect.
 
@@ -72,4 +72,4 @@ Persistence: Each participant’s state is serialized to a per-UUID YAML file un
 LuckPerms integration: /openqueue and /closequeue use the LuckPerms Java API directly to add/remove queue.join.event on the default group asynchronously, then sync back to the main thread to update the in-memory queue state. The plugin soft-depends on LuckPerms so it still loads without it.
 
 # Notes
-No further explanation will be given on how to use this plugin because it is specifically made to work on my server. (which runs on a bunch of skripts). If you wanna write an explanation feel free to make a pull request and merge.
+No further explanation will be given on how to use this plugin because it is specifically made to work on my server. (which runs on a bunch of Skripts). If you wanna write an explanation feel free to make a pull request and merge.
