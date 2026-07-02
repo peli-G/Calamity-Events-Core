@@ -1,6 +1,6 @@
-package com.peli.eventqueue.commands;
+package com.peli.calamityevents.commands;
 
-import com.peli.eventqueue.EventQueuePlugin;
+import com.peli.calamityevents.CalamityEventsCore;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -8,9 +8,9 @@ import org.bukkit.command.CommandSender;
 
 public class EventQueueAdminCommand implements CommandExecutor {
 
-    private final EventQueuePlugin plugin;
+    private final CalamityEventsCore plugin;
 
-    public EventQueueAdminCommand(EventQueuePlugin plugin) {
+    public EventQueueAdminCommand(CalamityEventsCore plugin) {
         this.plugin = plugin;
     }
 
@@ -18,7 +18,7 @@ public class EventQueueAdminCommand implements CommandExecutor {
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (args.length == 1 && args[0].equalsIgnoreCase("reload")) {
             plugin.loadSettings();
-            sender.sendMessage(ChatColor.translateAlternateColorCodes('&', "&aEventQueueSystem config reloaded."));
+            sender.sendMessage(ChatColor.translateAlternateColorCodes('&', "&aCalamityEventsCore config reloaded."));
             return true;
         }
 

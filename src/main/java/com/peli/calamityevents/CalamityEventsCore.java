@@ -1,16 +1,18 @@
-package com.peli.eventqueue;
+package com.peli.calamityevents;
 
-import com.peli.eventqueue.commands.CloseEventQueueCommand;
-import com.peli.eventqueue.commands.EventQueueAdminCommand;
-import com.peli.eventqueue.commands.OpenEventQueueCommand;
-import com.peli.eventqueue.commands.QueueInfoCommand;
-import com.peli.eventqueue.commands.SetQueueSpawnCommand;
-import com.peli.eventqueue.data.PlayerDataManager;
-import com.peli.eventqueue.data.QueueSpawnManager;
-import com.peli.eventqueue.data.SavedPlayerData;
-import com.peli.eventqueue.gui.RestoreGUIListener;
-import com.peli.eventqueue.listeners.PlayerConnectionListener;
-import com.peli.eventqueue.listeners.PlayerDeathListener;
+import com.peli.calamityevents.commands.CloseEventQueueCommand;
+import com.peli.calamityevents.commands.EventQueueAdminCommand;
+import com.peli.calamityevents.commands.JoinQueueCommand;
+import com.peli.calamityevents.commands.OpenEventQueueCommand;
+import com.peli.calamityevents.commands.QueueInfoCommand;
+import com.peli.calamityevents.commands.SetQueueSpawnCommand;
+import com.peli.calamityevents.data.PlayerDataManager;
+import com.peli.calamityevents.data.QueueSpawnManager;
+import com.peli.calamityevents.data.SavedPlayerData;
+import com.peli.calamityevents.gui.RestoreGUIListener;
+import com.peli.calamityevents.listeners.PlayerConnectionListener;
+import com.peli.calamityevents.listeners.PlayerDeathListener;
+import com.peli.calamityevents.listeners.QueueGateListener;
 import org.bukkit.World;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -21,7 +23,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
-public class EventQueuePlugin extends JavaPlugin {
+public class CalamityEventsCore extends JavaPlugin {
+
+    public static final String QUEUE_OPERATOR_PERMISSION = "queue.join.op";
 
     private QueueSpawnManager queueSpawnManager;
     private PlayerDataManager playerDataManager;
@@ -51,14 +55,16 @@ public class EventQueuePlugin extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new PlayerConnectionListener(this), this);
         getServer().getPluginManager().registerEvents(new PlayerDeathListener(this), this);
         getServer().getPluginManager().registerEvents(new RestoreGUIListener(this), this);
+        getServer().getPluginManager().registerEvents(new QueueGateListener(this), this);
 
         getCommand("setqueuespawn").setExecutor(new SetQueueSpawnCommand(this));
+        getCommand("joinqueue").setExecutor(new JoinQueueCommand(this));
         getCommand("openqueue").setExecutor(new OpenEventQueueCommand(this));
         getCommand("closequeue").setExecutor(new CloseEventQueueCommand(this));
         getCommand("queueinfo").setExecutor(new QueueInfoCommand(this));
         getCommand("eventqueue").setExecutor(new EventQueueAdminCommand(this));
 
-        getLogger().info("EventQueueSystem enabled. Watching " + eventWorlds.size() + " event world(s): " + eventWorlds);
+        getLogger().info("CalamityEventsCore enabled. Watching " + eventWorlds.size() + " event world(s): " + eventWorlds);
         if (!isLuckPermsAvailable()) {
             getLogger().warning("LuckPerms not found — /openqueue and /closequeue won't be able to modify group permissions.");
         }
@@ -66,7 +72,7 @@ public class EventQueuePlugin extends JavaPlugin {
 
     @Override
     public void onDisable() {
-        getLogger().info("EventQueueSystem disabled.");
+        getLogger().info("CalamityEventsCore disabled.");
     }
 
     public void loadSettings() {
@@ -90,6 +96,20 @@ public class EventQueuePlugin extends JavaPlugin {
 
     public boolean isLuckPermsAvailable() {
         return getServer().getPluginManager().getPlugin("LuckPerms") != null;
+    }
+
+    /**
+     * True if at least one online player who is physically standing in
+     * {@code world} currently has {@link #QUEUE_OPERATOR_PERMISSION}.
+     * Used to gate queue entry — non-operators can't join the queue unless
+     * an operator is already present in the event world.
+     */
+    public boolean isQueueOperatorPresent(World world) {
+        if (world == null) return false;
+        for (org.bukkit.entity.Player p : world.getPlayers()) {
+            if (p.hasPermission(QUEUE_OPERATOR_PERMISSION)) return true;
+        }
+        return false;
     }
 
     public String getSavePermission()                    { return savePermission; }

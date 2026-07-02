@@ -1,10 +1,13 @@
-package com.peli.eventqueue.listeners;
+package com.peli.calamityevents.listeners;
 
-import com.peli.eventqueue.EventQueuePlugin;
-import com.peli.eventqueue.data.PlayerDataManager;
-import com.peli.eventqueue.data.QueueSpawnManager;
-import com.peli.eventqueue.data.SavedPlayerData;
-import com.peli.eventqueue.gui.RestoreGUI;
+import com.peli.calamityevents.CalamityEventsCore;
+import com.peli.calamityevents.commands.QueueInfoCommand;
+import com.peli.calamityevents.data.PlayerDataManager;
+import com.peli.calamityevents.data.QueueSpawnManager;
+import com.peli.calamityevents.data.SavedPlayerData;
+import com.peli.calamityevents.gui.RestoreGUI;
+import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.attribute.Attribute;
@@ -24,9 +27,9 @@ public class PlayerConnectionListener implements Listener {
         new ItemStack(Material.AIR), new ItemStack(Material.AIR)
     };
 
-    private final EventQueuePlugin plugin;
+    private final CalamityEventsCore plugin;
 
-    public PlayerConnectionListener(EventQueuePlugin plugin) {
+    public PlayerConnectionListener(CalamityEventsCore plugin) {
         this.plugin = plugin;
     }
 
@@ -69,15 +72,40 @@ public class PlayerConnectionListener implements Listener {
         World from = event.getFrom();
         World to = player.getWorld();
 
-        boolean wasEvent = plugin.isEventWorld(from);
-        boolean isEvent  = plugin.isEventWorld(to);
+        boolean isEvent = plugin.isEventWorld(to);
+        String fromGroup = canonicalWorldGroup(from);
+        String toGroup = canonicalWorldGroup(to);
+        boolean sameGroup = fromGroup.equalsIgnoreCase(toGroup);
 
         plugin.debug("World change: " + player.getName() + " '" + from.getName() + "' → '" + to.getName()
-                + "' (wasEvent=" + wasEvent + ", isEvent=" + isEvent + ").");
+                + "' (isEvent=" + isEvent + ", fromGroup=" + fromGroup + ", toGroup=" + toGroup + ").");
 
-        if (!isEvent || wasEvent) return;
+        if (!isEvent) return;
+
+        if (sameGroup) {
+            // e.g. world -> world_nether -> world, or world -> world_the_end -> world.
+            // Same underlying event, just a dimension hop — don't re-run entry logic
+            // (restore GUI, actor reset, queue-operator queueinfo readout, etc).
+            plugin.debug("Same event group ('" + toGroup + "') — skipping re-entry logic.");
+            return;
+        }
 
         handleEnterEventWorld(player, "world change into '" + to.getName() + "'");
+    }
+
+    /**
+     * Returns the "base" name of a world for grouping dimension pairs together:
+     * world_nether -> world, world_the_end -> world, world -> world.
+     * This lets nether/end travel within an event world's own dimensions avoid
+     * re-triggering entry logic, without requiring _nether/_the_end to be
+     * separately listed in config.yml's event-worlds.
+     */
+    private String canonicalWorldGroup(World world) {
+        if (world == null) return "";
+        String lower = world.getName().toLowerCase();
+        if (lower.endsWith("_nether")) return lower.substring(0, lower.length() - "_nether".length());
+        if (lower.endsWith("_the_end")) return lower.substring(0, lower.length() - "_the_end".length());
+        return lower;
     }
 
     // -------------------------------------------------------------------------
@@ -105,6 +133,13 @@ public class PlayerConnectionListener implements Listener {
     // -------------------------------------------------------------------------
 
     private void handleEnterEventWorld(Player player, String reason) {
+        // Queue operators get an automatic status readout every time they
+        // step into the event world, regardless of savedata/actor status.
+        if (player.hasPermission(CalamityEventsCore.QUEUE_OPERATOR_PERMISSION)) {
+            plugin.debug("Enter event world (" + reason + "): " + player.getName() + " is a queue operator — sending /queueinfo.");
+            QueueInfoCommand.send(player, plugin);
+        }
+
         boolean hasPermission = player.hasPermission(plugin.getSavePermission());
         plugin.debug("Enter event world (" + reason + "): " + player.getName()
                 + " — hasPermission=" + hasPermission);
@@ -118,10 +153,25 @@ public class PlayerConnectionListener implements Listener {
             } else {
                 plugin.debug("No saved data for " + player.getName() + " — leaving as-is.");
             }
-        } else {
-            plugin.debug("Resetting " + player.getName() + " to actor state.");
-            resetToActor(player, plugin.getQueueSpawnManager());
+            return;
         }
+
+        // Actor path (queue joiner). The QueueGateListener normally stops these
+        // players before they ever arrive via PlayerTeleportEvent, but a player
+        // logging in with their session starting directly inside the event world
+        // never fires a teleport event, so this is the backup check for that case.
+        if (!player.hasPermission(CalamityEventsCore.QUEUE_OPERATOR_PERMISSION)
+                && !plugin.isQueueOperatorPresent(player.getWorld())) {
+            plugin.debug("Enter event world (" + reason + "): " + player.getName()
+                    + " has no operator present — bouncing out instead of resetting to actor.");
+            player.sendMessage("§cThe queue can't be joined right now — no queue operator is in the event world.");
+            Location fallback = Bukkit.getWorlds().get(0).getSpawnLocation();
+            player.teleport(fallback);
+            return;
+        }
+
+        plugin.debug("Resetting " + player.getName() + " to actor state.");
+        resetToActor(player, plugin.getQueueSpawnManager());
     }
 
     private void resetToActor(Player player, QueueSpawnManager queueSpawnManager) {

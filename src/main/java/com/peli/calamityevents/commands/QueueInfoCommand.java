@@ -1,6 +1,6 @@
-package com.peli.eventqueue.commands;
+package com.peli.calamityevents.commands;
 
-import com.peli.eventqueue.EventQueuePlugin;
+import com.peli.calamityevents.CalamityEventsCore;
 import org.bukkit.Location;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -8,16 +8,27 @@ import org.bukkit.command.CommandSender;
 
 public class QueueInfoCommand implements CommandExecutor {
 
-    private final EventQueuePlugin plugin;
+    private final CalamityEventsCore plugin;
 
-    public QueueInfoCommand(EventQueuePlugin plugin) {
+    public QueueInfoCommand(CalamityEventsCore plugin) {
         this.plugin = plugin;
     }
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+        send(sender, plugin);
+        return true;
+    }
+
+    /**
+     * Prints the queue info block to any CommandSender. Shared by:
+     *  - /queueinfo
+     *  - /openqueue and /closequeue (appended after their status message)
+     *  - the auto-display shown to queue.join.op holders on entering the event world
+     */
+    public static void send(CommandSender sender, CalamityEventsCore plugin) {
         sender.sendMessage("§8§m--------------------");
-        sender.sendMessage("§6§lEventQueueSystem Info");
+        sender.sendMessage("§6§lCalamityEventsCore Info");
 
         String queueStatus = plugin.isQueueOpen() ? "§aOPEN" : "§cCLOSED";
         sender.sendMessage("§7Queue: " + queueStatus);
@@ -35,6 +46,5 @@ public class QueueInfoCommand implements CommandExecutor {
 
         sender.sendMessage("§7Event worlds: §e" + plugin.getEventWorldNames());
         sender.sendMessage("§8§m--------------------");
-        return true;
     }
 }

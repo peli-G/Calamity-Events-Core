@@ -1,6 +1,6 @@
-package com.peli.eventqueue.data;
+package com.peli.calamityevents.data;
 
-import com.peli.eventqueue.EventQueuePlugin;
+import com.peli.calamityevents.CalamityEventsCore;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
@@ -28,10 +28,10 @@ import java.util.logging.Level;
 
 public class PlayerDataManager {
 
-    private final EventQueuePlugin plugin;
+    private final CalamityEventsCore plugin;
     private final File folder;
 
-    public PlayerDataManager(EventQueuePlugin plugin) {
+    public PlayerDataManager(CalamityEventsCore plugin) {
         this.plugin = plugin;
         this.folder = new File(plugin.getDataFolder(), "playerdata");
         if (!folder.exists()) folder.mkdirs();

@@ -1,8 +1,8 @@
-package com.peli.eventqueue.listeners;
+package com.peli.calamityevents.listeners;
 
-import com.peli.eventqueue.EventQueuePlugin;
-import com.peli.eventqueue.data.SavedPlayerData;
-import com.peli.eventqueue.gui.RestoreGUI;
+import com.peli.calamityevents.CalamityEventsCore;
+import com.peli.calamityevents.data.SavedPlayerData;
+import com.peli.calamityevents.gui.RestoreGUI;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -12,9 +12,9 @@ import org.bukkit.event.player.PlayerRespawnEvent;
 
 public class PlayerDeathListener implements Listener {
 
-    private final EventQueuePlugin plugin;
+    private final CalamityEventsCore plugin;
 
-    public PlayerDeathListener(EventQueuePlugin plugin) {
+    public PlayerDeathListener(CalamityEventsCore plugin) {
         this.plugin = plugin;
     }
 

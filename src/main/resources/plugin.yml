@@ -1,8 +1,8 @@
-name: EventQueueSystem
-version: '1.1.0'
-main: com.peli.eventqueue.EventQueuePlugin
+name: CalamityEventsCore
+version: '1.0.0'
+main: com.peli.calamityevents.CalamityEventsCore
 api-version: '1.21'
-author: peli_G
+author: Peli
 description: Permission-gated player data save/restore and queue spawn system for scripted Minecraft events.
 
 softdepend:
@@ -13,6 +13,9 @@ commands:
     description: Sets the queue spawn for the current event world.
     usage: /setqueuespawn
     permission: eventqueue.setqueuespawn
+  joinqueue:
+    description: Joins the event queue, if it's open and a queue operator is present.
+    usage: /joinqueue
   openqueue:
     description: Opens the event queue and grants queue.join.event to the default group.
     usage: /openqueue
@@ -26,7 +29,7 @@ commands:
     usage: /queueinfo
     permission: eventqueue.admin
   eventqueue:
-    description: Admin command for EventQueueSystem.
+    description: Admin command for CalamityEventsCore.
     usage: /eventqueue reload
     permission: eventqueue.admin
 
@@ -35,11 +38,18 @@ permissions:
     description: Allows setting the queue spawn location.
     default: op
   eventqueue.admin:
-    description: Allows all EventQueueSystem admin commands.
+    description: Allows all CalamityEventsCore admin commands.
     default: op
   event.savedata:
     description: >-
       Players with this permission have their data saved on quit and are shown
       the restore GUI on joining an event world or respawning after death.
       Without it, players are treated as actors and reset to the queue spawn.
+    default: false
+  queue.join.op:
+    description: >-
+      Marks a player as a queue operator. At least one online queue operator
+      must be present in the event world before any other player (without
+      this permission) is allowed to enter it. Queue operators also see
+      /queueinfo automatically every time they enter the event world.
     default: false

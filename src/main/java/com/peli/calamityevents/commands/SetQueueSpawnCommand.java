@@ -1,6 +1,6 @@
-package com.peli.eventqueue.commands;
+package com.peli.calamityevents.commands;
 
-import com.peli.eventqueue.EventQueuePlugin;
+import com.peli.calamityevents.CalamityEventsCore;
 import org.bukkit.Location;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -9,9 +9,9 @@ import org.bukkit.entity.Player;
 
 public class SetQueueSpawnCommand implements CommandExecutor {
 
-    private final EventQueuePlugin plugin;
+    private final CalamityEventsCore plugin;
 
-    public SetQueueSpawnCommand(EventQueuePlugin plugin) {
+    public SetQueueSpawnCommand(CalamityEventsCore plugin) {
         this.plugin = plugin;
     }
 

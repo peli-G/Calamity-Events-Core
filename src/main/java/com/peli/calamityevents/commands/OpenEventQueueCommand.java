@@ -1,6 +1,6 @@
-package com.peli.eventqueue.commands;
+package com.peli.calamityevents.commands;
 
-import com.peli.eventqueue.EventQueuePlugin;
+import com.peli.calamityevents.CalamityEventsCore;
 import net.luckperms.api.LuckPerms;
 import net.luckperms.api.LuckPermsProvider;
 import net.luckperms.api.model.group.Group;
@@ -12,9 +12,9 @@ import org.bukkit.command.CommandSender;
 
 public class OpenEventQueueCommand implements CommandExecutor {
 
-    private final EventQueuePlugin plugin;
+    private final CalamityEventsCore plugin;
 
-    public OpenEventQueueCommand(EventQueuePlugin plugin) {
+    public OpenEventQueueCommand(CalamityEventsCore plugin) {
         this.plugin = plugin;
     }
 
@@ -36,7 +36,8 @@ public class OpenEventQueueCommand implements CommandExecutor {
                 group.data().add(Node.builder("queue.join.event").value(true).build());
                 lp.getGroupManager().saveGroup(group);
                 plugin.setQueueOpen(true);
-                sender.sendMessage("§aEvent Queue is now open!");
+                sender.sendMessage("§a§lQueue Opened!");
+                QueueInfoCommand.send(sender, plugin);
                 plugin.debug("Event queue opened by " + sender.getName() + " — queue.join.event granted to default group.");
             });
         });

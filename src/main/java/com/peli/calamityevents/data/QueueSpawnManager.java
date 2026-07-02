@@ -1,6 +1,6 @@
-package com.peli.eventqueue.data;
+package com.peli.calamityevents.data;
 
-import com.peli.eventqueue.EventQueuePlugin;
+import com.peli.calamityevents.CalamityEventsCore;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -16,11 +16,11 @@ import java.util.logging.Level;
  */
 public class QueueSpawnManager {
 
-    private final EventQueuePlugin plugin;
+    private final CalamityEventsCore plugin;
     private final File file;
     private Location queueSpawn;
 
-    public QueueSpawnManager(EventQueuePlugin plugin) {
+    public QueueSpawnManager(CalamityEventsCore plugin) {
         this.plugin = plugin;
         this.file = new File(plugin.getDataFolder(), "queuespawn.yml");
         load();

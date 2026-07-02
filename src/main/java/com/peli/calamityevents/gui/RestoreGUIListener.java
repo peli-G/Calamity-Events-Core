@@ -1,7 +1,7 @@
-package com.peli.eventqueue.gui;
+package com.peli.calamityevents.gui;
 
-import com.peli.eventqueue.EventQueuePlugin;
-import com.peli.eventqueue.data.RestoreOption;
+import com.peli.calamityevents.CalamityEventsCore;
+import com.peli.calamityevents.data.RestoreOption;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -10,9 +10,9 @@ import org.bukkit.event.inventory.InventoryCloseEvent;
 
 public class RestoreGUIListener implements Listener {
 
-    private final EventQueuePlugin plugin;
+    private final CalamityEventsCore plugin;
 
-    public RestoreGUIListener(EventQueuePlugin plugin) {
+    public RestoreGUIListener(CalamityEventsCore plugin) {
         this.plugin = plugin;
     }
 

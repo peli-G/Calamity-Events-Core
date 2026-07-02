@@ -1,4 +1,4 @@
-package com.peli.eventqueue.data;
+package com.peli.calamityevents.data;
 
 import org.bukkit.GameMode;
 import org.bukkit.Location;

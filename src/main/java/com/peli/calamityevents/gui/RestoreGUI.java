@@ -1,7 +1,7 @@
-package com.peli.eventqueue.gui;
+package com.peli.calamityevents.gui;
 
-import com.peli.eventqueue.data.RestoreOption;
-import com.peli.eventqueue.data.SavedPlayerData;
+import com.peli.calamityevents.data.RestoreOption;
+import com.peli.calamityevents.data.SavedPlayerData;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;

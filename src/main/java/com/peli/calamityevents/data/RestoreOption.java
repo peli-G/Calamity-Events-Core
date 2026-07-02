@@ -1,4 +1,4 @@
-package com.peli.eventqueue.data;
+package com.peli.calamityevents.data;
 
 /**
  * The 14 toggleable restore options shown in the restore GUI.
