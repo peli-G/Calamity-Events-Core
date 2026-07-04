@@ -6,10 +6,11 @@ IP is calamityevents.cinros.net
 ## Commands
 All commands listed here require Operator status (OP)
 
-/eventqueue reload
+/calamityeventscore reload
 /queueinfo
 /setqueuespawn
 /openqueue
+/openqueue trusted
 /closequeue
 
 ## Compiling
@@ -46,9 +47,17 @@ LuckPerms integration: /openqueue and /closequeue use the LuckPerms Java API dir
 No further explanation will be given on how to use this plugin because it is specifically made to work on my server. (which runs on a bunch of skripts). If you wanna write an explanation feel free to make a pull request and merge.
 
 # Luckperms Permissions
+event.setqueuespawn
 event.savedata
 queue.join.event
 queue.join.op
+queue.join.trusted
+warp.set
+warp.use
+warp.delete
+warp.list
+immortal.use
+
 
 # Techinical Summary
 (written by ai cuz i aint writing all that shi myself)
