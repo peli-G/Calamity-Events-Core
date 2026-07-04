@@ -7,14 +7,23 @@ IP is calamityevents.cinros.net
 All commands listed here require Operator status (OP)
 
 /calamityeventscore reload
+
 /queueinfo
+
 /setqueuespawn
+
 /openqueue
+
 /openqueue trusted
+
 /closequeue
+
 /setwarp
+
 /delwarp
+
 /listwarps
+
 /warp
 
 ## Compiling
@@ -52,14 +61,23 @@ No further explanation will be given on how to use this plugin because it is spe
 
 # Luckperms Permissions
 event.setqueuespawn
+
 event.savedata
+
 queue.join.event
+
 queue.join.op
+
 queue.join.trusted
+
 warp.set
+
 warp.use
+
 warp.delete
+
 warp.list
+
 immortal.use
 
 
