@@ -72,13 +72,30 @@ public class PlayerConnectionListener implements Listener {
         World from = event.getFrom();
         World to = player.getWorld();
 
+        boolean wasEvent = plugin.isEventWorld(from);
         boolean isEvent = plugin.isEventWorld(to);
         String fromGroup = canonicalWorldGroup(from);
         String toGroup = canonicalWorldGroup(to);
         boolean sameGroup = fromGroup.equalsIgnoreCase(toGroup);
 
         plugin.debug("World change: " + player.getName() + " '" + from.getName() + "' → '" + to.getName()
-                + "' (isEvent=" + isEvent + ", fromGroup=" + fromGroup + ", toGroup=" + toGroup + ").");
+                + "' (wasEvent=" + wasEvent + ", isEvent=" + isEvent + ", fromGroup=" + fromGroup + ", toGroup=" + toGroup + ").");
+
+        // Leaving the event world for good (not just a nether/end hop within
+        // it) — save immediately rather than waiting for a disconnect. This
+        // covers moving back to the lobby, or into any other world entirely
+        // (staff testing/building areas, etc.) — any destination outside the
+        // event world's own group counts, not just a fixed list of names.
+        if (wasEvent && !sameGroup) {
+            if (plugin.getPendingRestorePlayers().contains(player.getUniqueId())) {
+                plugin.debug("World change: " + player.getName() + " left '" + from.getName()
+                        + "' while a restore GUI was open — not saving to preserve existing save.");
+            } else if (player.hasPermission(plugin.getSavePermission())) {
+                plugin.debug("World change: " + player.getName() + " left event world '" + from.getName()
+                        + "' for '" + to.getName() + "' — saving player data.");
+                plugin.getPlayerDataManager().savePlayerData(player);
+            }
+        }
 
         if (!isEvent) return;
 
@@ -133,11 +150,29 @@ public class PlayerConnectionListener implements Listener {
     // -------------------------------------------------------------------------
 
     private void handleEnterEventWorld(Player player, String reason) {
+        boolean isOperator = player.hasPermission(CalamityEventsCore.QUEUE_OPERATOR_PERMISSION);
+
         // Queue operators get an automatic status readout every time they
         // step into the event world, regardless of savedata/actor status.
-        if (player.hasPermission(CalamityEventsCore.QUEUE_OPERATOR_PERMISSION)) {
+        if (isOperator) {
             plugin.debug("Enter event world (" + reason + "): " + player.getName() + " is a queue operator — sending /queueinfo.");
             QueueInfoCommand.send(player, plugin);
+        }
+
+        // A pending death snapshot takes priority over the normal savedata
+        // restore GUI: the player is coming back after dying in this event
+        // world specifically to be offered their death loot back. The GUI is
+        // deferred until they're actually back inside the event world (not
+        // shown right at respawn, since respawn usually drops them in the
+        // lobby) — see PlayerDeathListener for why the snapshot itself is
+        // captured at death time rather than here.
+        SavedPlayerData deathSnapshot = plugin.getDeathSnapshots().get(player.getUniqueId());
+        if (deathSnapshot != null) {
+            plugin.debug("Enter event world (" + reason + "): " + player.getName()
+                    + " has a pending death snapshot — showing death restore GUI.");
+            plugin.getPendingRestorePlayers().add(player.getUniqueId());
+            RestoreGUI.openForDeath(player, deathSnapshot);
+            return;
         }
 
         boolean hasPermission = player.hasPermission(plugin.getSavePermission());
@@ -156,12 +191,22 @@ public class PlayerConnectionListener implements Listener {
             return;
         }
 
+        // Queue operators are staff, not queue actors — this branch used to
+        // fall through to resetToActor() below for any operator who didn't
+        // also separately hold event.savedata, silently stripping their
+        // inventory and teleporting them to the queue spawn every time they
+        // walked in. Operators are never treated as actors, full stop.
+        if (isOperator) {
+            plugin.debug("Enter event world (" + reason + "): " + player.getName()
+                    + " is a queue operator without savedata — leaving them as-is (no actor reset).");
+            return;
+        }
+
         // Actor path (queue joiner). The QueueGateListener normally stops these
         // players before they ever arrive via PlayerTeleportEvent, but a player
         // logging in with their session starting directly inside the event world
         // never fires a teleport event, so this is the backup check for that case.
-        if (!player.hasPermission(CalamityEventsCore.QUEUE_OPERATOR_PERMISSION)
-                && !plugin.isQueueOperatorPresent(player.getWorld())) {
+        if (!plugin.isQueueOperatorPresent(player.getWorld())) {
             plugin.debug("Enter event world (" + reason + "): " + player.getName()
                     + " has no operator present — bouncing out instead of resetting to actor.");
             player.sendMessage("§cThe queue can't be joined right now — no queue operator is in the event world.");

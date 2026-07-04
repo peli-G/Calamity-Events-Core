@@ -1,7 +1,6 @@
 package com.peli.calamityevents.commands;
 
 import com.peli.calamityevents.CalamityEventsCore;
-import org.bukkit.Location;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -10,12 +9,13 @@ import org.bukkit.entity.Player;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
-public class SetQueueSpawnCommand implements CommandExecutor, TabCompleter {
+public class ListWarpsCommand implements CommandExecutor, TabCompleter {
 
     private final CalamityEventsCore plugin;
 
-    public SetQueueSpawnCommand(CalamityEventsCore plugin) {
+    public ListWarpsCommand(CalamityEventsCore plugin) {
         this.plugin = plugin;
     }
 
@@ -33,20 +33,18 @@ public class SetQueueSpawnCommand implements CommandExecutor, TabCompleter {
 
         Player player = (Player) sender;
 
-        if (!plugin.isEventWorld(player.getWorld())) {
-            player.sendMessage("§cYou can only set the queue spawn in an event world.");
+        if (!plugin.isWarpWorld(player.getWorld())) {
+            player.sendMessage("§cThis world isn't configured for warps.");
             return true;
         }
 
-        Location loc = player.getLocation();
-        plugin.getQueueSpawnManager().setQueueSpawn(loc);
+        Set<String> warps = plugin.getWarpManager().listWarps(player.getWorld());
+        if (warps.isEmpty()) {
+            player.sendMessage("§7No warps set in " + player.getWorld().getName() + " yet.");
+            return true;
+        }
 
-        // e.g.  Set queue spawn in minecraft:overworld at (100.50, 64.00, -200.30) yaw: 45.00  pitch: 0.00
-        String worldKey = "minecraft:" + loc.getWorld().getName().toLowerCase();
-        player.sendMessage(String.format(
-                "§aSet queue spawn in §e%s §aat §e(%.2f, %.2f, %.2f) §ayaw: §e%.2f §apitch: §e%.2f",
-                worldKey, loc.getX(), loc.getY(), loc.getZ(), loc.getYaw(), loc.getPitch()
-        ));
+        player.sendMessage("§6§lWarps in " + player.getWorld().getName() + "§6§l: §e" + String.join("§7, §e", warps));
         return true;
     }
 }

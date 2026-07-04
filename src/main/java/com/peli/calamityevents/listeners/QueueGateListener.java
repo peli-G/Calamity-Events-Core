@@ -37,6 +37,14 @@ public class QueueGateListener implements Listener {
         if (player.hasPermission(CalamityEventsCore.QUEUE_OPERATOR_PERMISSION)) return;
         if (player.hasPermission(plugin.getSavePermission())) return; // participants aren't "joining the queue"
 
+        if (plugin.isTrustedOnlyMode() && !player.hasPermission(CalamityEventsCore.QUEUE_TRUSTED_PERMISSION)) {
+            event.setCancelled(true);
+            player.sendMessage("§cThe queue is currently trusted-only.");
+            plugin.debug("Queue gate: blocked " + player.getName() + " from entering '" + to.getName()
+                    + "' — trusted-only mode active, player lacks queue.join.trusted.");
+            return;
+        }
+
         if (!plugin.isQueueOperatorPresent(to)) {
             event.setCancelled(true);
             player.sendMessage("§cThe queue can't be joined right now — no queue operator is in the event world.");

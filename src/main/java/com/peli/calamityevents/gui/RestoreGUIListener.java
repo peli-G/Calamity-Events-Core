@@ -51,7 +51,6 @@ public class RestoreGUIListener implements Listener {
                 player.sendMessage("§7Skipped restore — you keep your respawn state.");
             } else {
                 plugin.getPendingRestorePlayers().remove(player.getUniqueId());
-                player.sendMessage("§7Skipped restore — starting fresh.");
             }
             return;
         }
@@ -81,7 +80,6 @@ public class RestoreGUIListener implements Listener {
                 player.sendMessage("§7Skipped restore — you keep your respawn state.");
             } else {
                 plugin.getPendingRestorePlayers().remove(player.getUniqueId());
-                player.sendMessage("§7Skipped restore — starting fresh.");
             }
         }
     }

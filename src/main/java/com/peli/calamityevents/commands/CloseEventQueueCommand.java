@@ -9,13 +9,22 @@ import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.TabCompleter;
 
-public class CloseEventQueueCommand implements CommandExecutor {
+import java.util.Collections;
+import java.util.List;
+
+public class CloseEventQueueCommand implements CommandExecutor, TabCompleter {
 
     private final CalamityEventsCore plugin;
 
     public CloseEventQueueCommand(CalamityEventsCore plugin) {
         this.plugin = plugin;
+    }
+
+    @Override
+    public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
+        return Collections.emptyList();
     }
 
     @Override
@@ -36,9 +45,10 @@ public class CloseEventQueueCommand implements CommandExecutor {
                 group.data().remove(Node.builder("queue.join.event").value(true).build());
                 lp.getGroupManager().saveGroup(group);
                 plugin.setQueueOpen(false);
+                plugin.setTrustedOnlyMode(false);
                 sender.sendMessage("§c§lQueue Closed.");
                 QueueInfoCommand.send(sender, plugin);
-                plugin.debug("Event queue closed by " + sender.getName() + " — queue.join.event removed from default group.");
+                plugin.debug("Event queue closed by " + sender.getName() + " — queue.join.event removed from default group, trusted-only mode cleared.");
             });
         });
         return true;

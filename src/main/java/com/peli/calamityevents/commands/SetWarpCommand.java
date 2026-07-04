@@ -11,11 +11,11 @@ import org.bukkit.entity.Player;
 import java.util.Collections;
 import java.util.List;
 
-public class SetQueueSpawnCommand implements CommandExecutor, TabCompleter {
+public class SetWarpCommand implements CommandExecutor, TabCompleter {
 
     private final CalamityEventsCore plugin;
 
-    public SetQueueSpawnCommand(CalamityEventsCore plugin) {
+    public SetWarpCommand(CalamityEventsCore plugin) {
         this.plugin = plugin;
     }
 
@@ -30,23 +30,28 @@ public class SetQueueSpawnCommand implements CommandExecutor, TabCompleter {
             sender.sendMessage("This command can only be used in-game.");
             return true;
         }
+        if (args.length != 1) {
+            sender.sendMessage("§cUsage: /setwarp <name>");
+            return true;
+        }
 
         Player player = (Player) sender;
+        String warpName = args[0];
 
-        if (!plugin.isEventWorld(player.getWorld())) {
-            player.sendMessage("§cYou can only set the queue spawn in an event world.");
+        if (!plugin.isWarpWorld(player.getWorld())) {
+            player.sendMessage("§cThis world isn't configured for warps. Add it to config.yml under warp-worlds.");
+            plugin.debug("SetWarp: " + player.getName() + " tried to set a warp in unconfigured world '" + player.getWorld().getName() + "'.");
             return true;
         }
 
         Location loc = player.getLocation();
-        plugin.getQueueSpawnManager().setQueueSpawn(loc);
+        plugin.getWarpManager().setWarp(player.getWorld(), warpName, loc);
 
-        // e.g.  Set queue spawn in minecraft:overworld at (100.50, 64.00, -200.30) yaw: 45.00  pitch: 0.00
-        String worldKey = "minecraft:" + loc.getWorld().getName().toLowerCase();
         player.sendMessage(String.format(
-                "§aSet queue spawn in §e%s §aat §e(%.2f, %.2f, %.2f) §ayaw: §e%.2f §apitch: §e%.2f",
-                worldKey, loc.getX(), loc.getY(), loc.getZ(), loc.getYaw(), loc.getPitch()
+                "§aSet warp §e%s §ain §e%s §aat §e(%.2f, %.2f, %.2f)",
+                warpName, player.getWorld().getName(), loc.getX(), loc.getY(), loc.getZ()
         ));
+        plugin.debug("SetWarp: " + player.getName() + " set warp '" + warpName + "' in '" + player.getWorld().getName() + "'.");
         return true;
     }
 }

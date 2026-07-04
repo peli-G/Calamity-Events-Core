@@ -1,5 +1,5 @@
 name: CalamityEventsCore
-version: '1.0.0'
+version: '1.4.0'
 main: com.peli.calamityevents.CalamityEventsCore
 api-version: '1.21'
 author: Peli
@@ -28,10 +28,30 @@ commands:
     description: Shows queue status and spawn info.
     usage: /queueinfo
     permission: eventqueue.admin
-  eventqueue:
+  calamityeventscore:
     description: Admin command for CalamityEventsCore.
-    usage: /eventqueue reload
+    usage: /calamityeventscore reload
     permission: eventqueue.admin
+  setwarp:
+    description: Sets a warp at your current location in this world.
+    usage: /setwarp <name>
+    permission: warp.set
+  warp:
+    description: Teleports you to a warp in the current world.
+    usage: /warp <name>
+    permission: warp.use
+  delwarp:
+    description: Deletes a warp in the current world.
+    usage: /delwarp <name>
+    permission: warp.delete
+  listwarps:
+    description: Lists the warps available in the current world.
+    usage: /listwarps
+    permission: warp.list
+  immortal:
+    description: Toggles immortal mode for yourself or another player.
+    usage: /immortal [player]
+    permission: immortal.use
 
 permissions:
   eventqueue.setqueuespawn:
@@ -53,3 +73,28 @@ permissions:
       this permission) is allowed to enter it. Queue operators also see
       /queueinfo automatically every time they enter the event world.
     default: false
+  queue.join.trusted:
+    description: >-
+      Lets a player join the queue while it's in trusted-only mode (opened
+      via "/openqueue trusted"). Has no effect while the queue is fully open
+      or fully closed — it only matters during trusted-only mode.
+    default: false
+  warp.set:
+    description: Allows setting warps with /setwarp.
+    default: op
+  warp.use:
+    description: Allows teleporting to warps with /warp.
+    default: op
+  warp.delete:
+    description: Allows deleting warps with /delwarp.
+    default: op
+  warp.list:
+    description: Allows listing warps with /listwarps.
+    default: op
+  immortal.use:
+    description: >-
+      Allows toggling immortal mode with /immortal. Immortal players still
+      take damage but can never drop below half a heart from normal damage
+      — a totem of undying in either hand still pops as usual if it would
+      otherwise be a lethal hit.
+    default: op

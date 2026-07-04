@@ -19,3 +19,10 @@ save-permission: "event.savedata"
 # reset actions) to console with an [debug] prefix. Turn this off once
 # everything's behaving the way you expect.
 debug: true
+
+# Multiverse world names where the warp system (/setwarp, /warp, /listwarps)
+# is active. Warps are scoped to the world they're set in — a warp named
+# "spawn" in "build" is completely separate from a warp named "spawn" in
+# "world". Only worlds listed here can have warps set or used at all.
+# Empty by default — add whichever worlds you want warps in.
+warp-worlds: []

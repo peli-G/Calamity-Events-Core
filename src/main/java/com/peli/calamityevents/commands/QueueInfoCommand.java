@@ -5,8 +5,12 @@ import org.bukkit.Location;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.TabCompleter;
 
-public class QueueInfoCommand implements CommandExecutor {
+import java.util.Collections;
+import java.util.List;
+
+public class QueueInfoCommand implements CommandExecutor, TabCompleter {
 
     private final CalamityEventsCore plugin;
 
@@ -20,6 +24,11 @@ public class QueueInfoCommand implements CommandExecutor {
         return true;
     }
 
+    @Override
+    public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
+        return Collections.emptyList();
+    }
+
     /**
      * Prints the queue info block to any CommandSender. Shared by:
      *  - /queueinfo
@@ -28,9 +37,16 @@ public class QueueInfoCommand implements CommandExecutor {
      */
     public static void send(CommandSender sender, CalamityEventsCore plugin) {
         sender.sendMessage("§8§m--------------------");
-        sender.sendMessage("§6§lCalamityEventsCore Info");
+        sender.sendMessage(net.md_5.bungee.api.ChatColor.of("#FD4866") + "" + net.md_5.bungee.api.ChatColor.BOLD + "Calamity Events Queue Info");
 
-        String queueStatus = plugin.isQueueOpen() ? "§aOPEN" : "§cCLOSED";
+        String queueStatus;
+        if (!plugin.isQueueOpen()) {
+            queueStatus = "§cCLOSED";
+        } else if (plugin.isTrustedOnlyMode()) {
+            queueStatus = "§eOPEN §7(§eTrusted Only§7)";
+        } else {
+            queueStatus = "§aOPEN";
+        }
         sender.sendMessage("§7Queue: " + queueStatus);
 
         if (plugin.getQueueSpawnManager().hasQueueSpawn()) {

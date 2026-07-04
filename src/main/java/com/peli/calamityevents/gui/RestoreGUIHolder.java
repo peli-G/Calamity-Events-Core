@@ -25,7 +25,7 @@ public class RestoreGUIHolder implements InventoryHolder {
         this.death = death;
         this.selected = EnumSet.noneOf(RestoreOption.class);
         for (RestoreOption opt : RestoreOption.values()) {
-            if (opt.isCheckedByDefault()) selected.add(opt);
+            if (opt.isCheckedByDefault(death)) selected.add(opt);
         }
     }
 
