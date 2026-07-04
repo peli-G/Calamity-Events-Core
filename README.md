@@ -12,6 +12,10 @@ All commands listed here require Operator status (OP)
 /openqueue
 /openqueue trusted
 /closequeue
+/setwarp
+/delwarp
+/listwarps
+/warp
 
 ## Compiling
 JDK 21 Required.
