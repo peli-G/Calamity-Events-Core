@@ -26,6 +26,8 @@ All commands listed here require Operator status (OP)
 
 /warp
 
+/immortal
+
 ## Compiling
 JDK 21 Required.
 
